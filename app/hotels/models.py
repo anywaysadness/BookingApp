@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, JSON
 from app.database import Base
 
 
+# Модель для SQLAlchemy
 class Hotels(Base):
     __tablename__ = "hotels"
 
