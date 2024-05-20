@@ -94,4 +94,13 @@ class BookingDAO(BaseDAO):
                 return new_booking.mappings().one()
             else:
                 return None
+
+    @classmethod
+    async def delete_booking(
+        cls,
+        booking_id: int,
+        user_id: int,
+    ):
+        pass
+
         
