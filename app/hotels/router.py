@@ -14,13 +14,15 @@ router = APIRouter(
 async def get_hotels_by_location_and_time(location: str,
                                           date_from: date = '2023-05-15',
                                           date_to: date = '2023-06-20'):
-    return await HotelDAO.find_all_by_parameters(location=location, date_from=date_from, date_to=date_to)
+    return await HotelDAO.find_all_hotels_by_parameters(location=location, date_from=date_from, date_to=date_to)
 
 
 # Получение списка комнат определенного отеля
 @router.get("/{hotel_id}/rooms")
-async def get_rooms_by_hotel_id():
-    pass
+async def get_rooms_by_hotel_id(hotel_id: int,
+                                date_from: date = '2023-05-15',
+                                date_to: date = '2023-06-20'):
+    return await HotelDAO.find_rooms_in_hotel(hotel_id=hotel_id, date_from=date_from, date_to=date_to)
 
 
 # Получение конкретного отеля

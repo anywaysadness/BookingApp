@@ -25,6 +25,7 @@ class BookingDAO(BaseDAO):
         #     (date_from <= '2023-05-15' AND date_to > '2023-05-15')
         # )
         async with async_session_maker() as session:
+            # Получение занятых номеров
             booked_rooms = (
                 select(Bookings)
                 .where(

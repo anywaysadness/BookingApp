@@ -18,20 +18,22 @@ class HotelDAO(BaseDAO):
             result = await session.execute(query)
             return result.mappings().all()
 
+    # Поиск отеля по дате и локации
     @classmethod
-    async def find_all_by_parameters(
+    async def find_all_hotels_by_parameters(
             cls,
             location: str,
             date_from: date,
             date_to: date,
     ):
-        # WITH free_bookings AS(
+        # WITH booked_rooms AS(
         #     SELECT * FROM bookings
         #     WHERE(date_from >= '2023-05-15' AND date_from <= '2023-06-20') OR
         # (date_from <= '2023-05-15' AND date_to > '2023-05-15')
         # )
         async with async_session_maker() as session:
-            free_bookings = (
+            # Получение занятых номеров
+            booked_rooms = (
                 select(Bookings)
                 .where(
                     or_(
@@ -45,7 +47,7 @@ class HotelDAO(BaseDAO):
                         ),
                     ),
 
-                ).cte("free_bookings")
+                ).cte("booked_rooms")
             )
         # select
         # hotels.id as "Hotel_id",
@@ -54,15 +56,15 @@ class HotelDAO(BaseDAO):
         # hotels.services as "Hotel_service",
         # hotels.rooms_quantity,
         # hotels.image_id,
-        # rooms.quantity - count(free_bookings.room_id) as "rooms_left"
+        # rooms.quantity - count(booked_rooms.room_id) as "rooms_left"
         # from rooms
-        # left join free_bookings ON free_bookings.room_id = rooms.id
+        # left join booked_rooms ON booked_rooms.room_id = rooms.id
         # left join hotels on hotels.id = rooms.hotel_id
         # where hotels."location" like '%лта%'
         # group by hotels.id, rooms.quantity
-        # having (rooms.quantity - count(free_bookings.room_id)) > 0
+        # having (rooms.quantity - count(booked_rooms.room_id)) > 0
         # order by hotels.id ASC
-
+            # Получение свободных номеров
             get_rooms_left = (
                 select(
                     Hotels.id.label("Hotel_id"),
@@ -71,19 +73,93 @@ class HotelDAO(BaseDAO):
                     Hotels.services.label("Hotel_service"),
                     Hotels.rooms_quantity,
                     Hotels.image_id,
-                    (Rooms.quantity - func.count(free_bookings.c.room_id)
-                     .filter(free_bookings.c.room_id.is_not(None)))
+                    (Rooms.quantity - func.count(booked_rooms.c.room_id)
+                     .filter(booked_rooms.c.room_id.is_not(None)))
                     .label("rooms_left")
                 )
                 .select_from(Rooms)
-                .join(free_bookings, free_bookings.c.room_id == Rooms.id, isouter=True)
+                .join(booked_rooms, booked_rooms.c.room_id == Rooms.id, isouter=True)
                 .join(Hotels, Hotels.id == Rooms.hotel_id, isouter=True)
                 .where(Hotels.location.like(f"%{location}%"))
                 .group_by(Hotels.id, Rooms.quantity)
-                .having(Rooms.quantity - func.count(free_bookings.c.room_id)
-                        .filter(free_bookings.c.room_id.is_not(None)) > 0)
+                .having(Rooms.quantity - func.count(booked_rooms.c.room_id)
+                        .filter(booked_rooms.c.room_id.is_not(None)) > 0)
                 .order_by(Hotels.id.asc())
             )
             # print(get_rooms_left.compile(engine, compile_kwargs={"literal_binds": True}))
+            rooms_left = await session.execute(get_rooms_left)
+            return rooms_left.mappings().all()
+
+    # Поиск всех комнат в отеле по дате
+    @classmethod
+    async def find_rooms_in_hotel(
+            cls,
+            hotel_id: int,
+            date_from: date,
+            date_to: date,
+    ):
+
+        # WITH free_bookings AS (
+        #     SELECT * FROM bookings
+        #     WHERE (date_from >= '2023-05-15' AND date_from <= '2023-06-20') OR
+        #     (date_from <= '2023-05-15' AND date_to > '2023-05-15')
+        # )
+
+        async with async_session_maker() as session:
+            print(f'total days {(date_to - date_from).days}')
+            booked_rooms = (
+                select(Bookings)
+                .where(
+                    or_(
+                        and_(
+                            Bookings.date_from >= date_from,
+                            Bookings.date_from <= date_to
+                        ),
+                        and_(
+                            Bookings.date_from <= date_from,
+                            Bookings.date_to > date_from
+                        ),
+                    ),
+
+                ).cte("booked_rooms")
+            )
+            # select
+            # rooms.id,
+            # rooms.hotel_id,
+            # rooms.name,
+            # rooms.description,
+            # rooms.price,
+            # rooms.services,
+            # rooms.quantity,
+            # rooms.image_id,
+            # ((5) * rooms.price) as "total_cost",
+            # rooms.quantity - count(free_bookings.room_id) as "rooms_left"
+            # from rooms
+            # left join free_bookings ON free_bookings.room_id = rooms.id
+            # where rooms.hotel_id = 1
+            # group by rooms.id
+
+            # Получение
+            get_rooms_left = (
+                select(
+                    Rooms.id.label("Rooms_id"),
+                    Rooms.hotel_id.label("Hotel_id"),
+                    Rooms.name.label("Rooms_name"),
+                    Rooms.description.label("Rooms_desc"),
+                    Rooms.price.label("Rooms_price"),
+                    Rooms.services.label("Rooms_services"),
+                    Rooms.quantity.label("Rooms_quantity"),
+                    Rooms.image_id.label("Rooms_image_id"),
+                    ((date_to - date_from).days * Rooms.price).label("total_cost"),
+                    (Rooms.quantity - func.count(booked_rooms.c.room_id)
+                     .filter(booked_rooms.c.room_id.is_not(None)))
+                    .label("rooms_left")
+                )
+                .select_from(Rooms)
+                .join(booked_rooms, booked_rooms.c.room_id == Rooms.id, isouter=True)
+                .where(Rooms.hotel_id == hotel_id)
+                .group_by(Rooms.id)
+                .order_by(Rooms.id.asc())
+            )
             rooms_left = await session.execute(get_rooms_left)
             return rooms_left.mappings().all()
