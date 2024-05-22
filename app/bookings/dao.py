@@ -95,11 +95,55 @@ class BookingDAO(BaseDAO):
                 return None
 
     @classmethod
-    async def delete_booking(
+    async def get_booking_by_user(
+            cls,
+            user_id: int,
+    ):
+        # select * from bookings
+        # join rooms on rooms.id = bookings.room_id
+        # where bookings.user_id = 5
+        async with async_session_maker() as session:
+            get_full_booking_by_user = (
+                select(
+                    Bookings.room_id.label("Room_id"),
+                    Bookings.user_id.label("User_id"),
+                    Bookings.date_from.label("Date_from"),
+                    Bookings.date_to.label("Date_to"),
+                    Bookings.price.label("Price"),
+                    Bookings.total_cost.label("Total_cost"),
+                    Bookings.total_days.label("Total_days"),
+                    Rooms.image_id.label("Image_id"),
+                    Rooms.name.label("Name"),
+                    Rooms.description.label("Desc"),
+                    Rooms.services.label("Services")
+                )
+                .select_from(Bookings)
+                .join(Rooms, Rooms.id == Bookings.room_id, isouter=True)
+                .where(Bookings.user_id == user_id)
+                .order_by(Bookings.id)
+            )
+            booking_by_user = await session.execute(get_full_booking_by_user)
+            return booking_by_user.mappings().all()
+
+    @classmethod
+    async def delete_booking_by_user(
         cls,
         booking_id: int,
         user_id: int,
     ):
-        pass
 
-        
+        async with async_session_maker() as session:
+            # delete from bookings
+            # where bookings.id = 19
+            delete_booking = (
+                delete(Bookings)
+                .where(
+                    and_(
+                        Bookings.id == booking_id,
+                        Bookings.user_id == user_id
+                    ),
+                )
+            )
+            # print(delete_booking.compile(engine, compile_kwargs={"literal_binds": True}))
+            delete_booking = await session.execute(delete_booking)
+            await session.commit()

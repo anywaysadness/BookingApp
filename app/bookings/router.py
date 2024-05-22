@@ -4,7 +4,7 @@ from app.bookings.dao import BookingDAO
 from app.users.models import Users
 from app.users.dependencies import get_current_user
 from datetime import date
-from app.exception import RoomCannotBeBooking
+from app.exception import RoomCannotBeBooking, BookingCannotBeDelete
 
 
 router = APIRouter(
@@ -13,17 +13,11 @@ router = APIRouter(
 )
 
 
-@router.get("")
-async def get_bookings(user: Users = Depends(get_current_user)) -> list[SBooking]:
-    return await BookingDAO.find_all(user_id=user.id)
-
-
-@router.delete("/{booking_id}")
-async def delete_bookings(
-        booking_id: int,
+@router.get("", status_code=200)
+async def get_bookings(
         user: Users = Depends(get_current_user)
 ):
-    booking = await BookingDAO.delete_booking(booking_id, user.id)
+    return await BookingDAO.get_booking_by_user(user_id=user.id)
 
 
 @router.post("")
@@ -34,3 +28,16 @@ async def add_booking(
     booking = await BookingDAO.add(user.id, room_id, date_from, date_to)
     if not booking:
         raise RoomCannotBeBooking
+
+
+@router.delete("/{booking_id}", status_code=204)
+async def delete_booking(
+        booking_id: int,
+        user: Users = Depends(get_current_user)
+):
+    check_booking_by_user = await BookingDAO.find_one_or_none(id=booking_id, user_id=user.id)
+    if not check_booking_by_user:
+        raise BookingCannotBeDelete
+    else:
+        await BookingDAO.delete_booking_by_user(booking_id, user.id)
+

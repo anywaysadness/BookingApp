@@ -10,7 +10,7 @@ router = APIRouter(
 
 
 # Получение списка отелей по параметрам
-@router.get("/{location}")
+@router.get("/{location}", status_code=200)
 async def get_hotels_by_location_and_time(location: str,
                                           date_from: date = '2023-05-15',
                                           date_to: date = '2023-06-20'):
@@ -18,7 +18,7 @@ async def get_hotels_by_location_and_time(location: str,
 
 
 # Получение списка комнат определенного отеля
-@router.get("/{hotel_id}/rooms")
+@router.get("/{hotel_id}/rooms", status_code=200)
 async def get_rooms_by_hotel_id(hotel_id: int,
                                 date_from: date = '2023-05-15',
                                 date_to: date = '2023-06-20'):
@@ -26,9 +26,9 @@ async def get_rooms_by_hotel_id(hotel_id: int,
 
 
 # Получение конкретного отеля
-@router.get("/id/{hotel_id}")
+@router.get("/id/{hotel_id}", status_code=200)
 async def get_hotel_by_id(hotel_id: int) -> SHotel:
-    return await HotelDAO.find_one_or_none(id=hotel_id)
+    return await HotelDAO.find_by_id(hotel_id)
 
 
 
