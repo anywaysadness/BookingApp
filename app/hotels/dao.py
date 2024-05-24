@@ -67,15 +67,15 @@ class HotelDAO(BaseDAO):
             # Получение свободных номеров
             get_rooms_left = (
                 select(
-                    Hotels.id.label("Hotel_id"),
-                    Hotels.name.label("Hotel_name"),
-                    Hotels.location.label("Hotel_location"),
-                    Hotels.services.label("Hotel_service"),
-                    Hotels.rooms_quantity,
-                    Hotels.image_id,
+                    Hotels.id.label("id"),
+                    Hotels.name.label("name"),
+                    Hotels.location.label("location"),
+                    Hotels.services.label("services"),
+                    Hotels.rooms_quantity.label("rooms_quantity"),
+                    Hotels.image_id.label("image_id"),
                     (Rooms.quantity - func.count(booked_rooms.c.room_id)
                      .filter(booked_rooms.c.room_id.is_not(None)))
-                    .label("rooms_left")
+                    .label("rooms_left"),
                 )
                 .select_from(Rooms)
                 .join(booked_rooms, booked_rooms.c.room_id == Rooms.id, isouter=True)
@@ -104,9 +104,7 @@ class HotelDAO(BaseDAO):
         #     WHERE (date_from >= '2023-05-15' AND date_from <= '2023-06-20') OR
         #     (date_from <= '2023-05-15' AND date_to > '2023-05-15')
         # )
-
         async with async_session_maker() as session:
-            print(f'total days {(date_to - date_from).days}')
             booked_rooms = (
                 select(Bookings)
                 .where(
@@ -142,14 +140,14 @@ class HotelDAO(BaseDAO):
             # Получение
             get_rooms_left = (
                 select(
-                    Rooms.id.label("Rooms_id"),
-                    Rooms.hotel_id.label("Hotel_id"),
-                    Rooms.name.label("Rooms_name"),
-                    Rooms.description.label("Rooms_desc"),
-                    Rooms.price.label("Rooms_price"),
-                    Rooms.services.label("Rooms_services"),
-                    Rooms.quantity.label("Rooms_quantity"),
-                    Rooms.image_id.label("Rooms_image_id"),
+                    Rooms.id.label("id"),
+                    Rooms.hotel_id.label("hotel_id"),
+                    Rooms.name.label("name"),
+                    Rooms.description.label("description"),
+                    Rooms.price.label("price"),
+                    Rooms.services.label("services"),
+                    Rooms.quantity.label("quantity"),
+                    Rooms.image_id.label("image_id"),
                     ((date_to - date_from).days * Rooms.price).label("total_cost"),
                     (Rooms.quantity - func.count(booked_rooms.c.room_id)
                      .filter(booked_rooms.c.room_id.is_not(None)))
