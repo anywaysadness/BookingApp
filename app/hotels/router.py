@@ -1,7 +1,5 @@
-from typing import List
-
 from fastapi import APIRouter, Query
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from app.hotels.schemas import SHotel, SHotelByLocationInfo
 from app.hotels.rooms.schemas import SRoomInfo
 from app.hotels.dao import HotelDAO
@@ -15,9 +13,9 @@ router = APIRouter(
 # Получение списка отелей по параметрам
 @router.get("", status_code=200)
 async def get_hotels_by_location_and_time(
-        location: str,
-        date_from: date = Query(..., description=f"Например, {datetime.now().date()}"),
-        date_to: date = Query(..., description=f"Например, {datetime.now().date()}"),
+        location: str = "",
+        date_from: date = Query("2023-07-15", description=f"Например, {datetime.now().date()}"),
+        date_to: date = Query("2023-07-25", description=f"Например, {datetime.now().date()}"),
 ) -> list[SHotelByLocationInfo]:
     hotels = await HotelDAO.find_all_hotels_by_parameters(location=location, date_from=date_from, date_to=date_to)
     return hotels

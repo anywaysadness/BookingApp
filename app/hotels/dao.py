@@ -73,17 +73,15 @@ class HotelDAO(BaseDAO):
                     Hotels.services.label("services"),
                     Hotels.rooms_quantity.label("rooms_quantity"),
                     Hotels.image_id.label("image_id"),
-                    (Rooms.quantity - func.count(booked_rooms.c.room_id)
+                    (Hotels.rooms_quantity - func.count(booked_rooms.c.room_id)
                      .filter(booked_rooms.c.room_id.is_not(None)))
                     .label("rooms_left"),
                 )
                 .select_from(Rooms)
-                .join(booked_rooms, booked_rooms.c.room_id == Rooms.id, isouter=True)
+                .join(booked_rooms, Rooms.id == booked_rooms.c.room_id, isouter=True)
                 .join(Hotels, Hotels.id == Rooms.hotel_id, isouter=True)
                 .where(Hotels.location.like(f"%{location}%"))
-                .group_by(Hotels.id, Rooms.quantity)
-                .having(Rooms.quantity - func.count(booked_rooms.c.room_id)
-                        .filter(booked_rooms.c.room_id.is_not(None)) > 0)
+                .group_by(Hotels.id)
                 .order_by(Hotels.id.asc())
             )
             # print(get_rooms_left.compile(engine, compile_kwargs={"literal_binds": True}))
