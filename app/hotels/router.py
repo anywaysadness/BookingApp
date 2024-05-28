@@ -14,8 +14,8 @@ router = APIRouter(
 @router.get("", status_code=200)
 async def get_hotels_by_location_and_time(
         location: str = "",
-        date_from: date = Query("2023-07-15", description=f"Например, {datetime.now().date()}"),
-        date_to: date = Query("2023-07-25", description=f"Например, {datetime.now().date()}"),
+        date_from: date = Query("2023-06-15", description=f"Например, {datetime.now().date()}"),
+        date_to: date = Query("2023-06-25", description=f"Например, {datetime.now().date()}"),
 ) -> list[SHotelByLocationInfo]:
     hotels = await HotelDAO.find_all_hotels_by_parameters(location=location, date_from=date_from, date_to=date_to)
     return hotels
@@ -25,8 +25,8 @@ async def get_hotels_by_location_and_time(
 @router.get("/{hotel_id}/rooms", status_code=200)
 async def get_rooms_by_hotel_id(
         hotel_id: int,
-        date_from: date = Query(..., description=f"Например, {datetime.now().date()}"),
-        date_to: date = Query(..., description=f"Например, {datetime.now().date()}"),
+        date_from: date = Query("2023-06-15", description=f"Например, {datetime.now().date()}"),
+        date_to: date = Query("2023-06-25", description=f"Например, {datetime.now().date()}"),
 ):
     rooms = await HotelDAO.find_rooms_in_hotel(hotel_id=hotel_id, date_from=date_from, date_to=date_to)
     return rooms

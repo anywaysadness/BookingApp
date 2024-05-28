@@ -4,7 +4,7 @@ from app.database import async_session_maker, engine
 from sqlalchemy import select
 from datetime import date
 from app.bookings.models import Bookings
-from sqlalchemy import and_, or_, func
+from sqlalchemy import and_, or_, func, case
 from app.hotels.rooms.models import Rooms
 
 
@@ -146,7 +146,10 @@ class HotelDAO(BaseDAO):
                     Rooms.services.label("services"),
                     Rooms.quantity.label("quantity"),
                     Rooms.image_id.label("image_id"),
-                    ((date_to - date_from).days * Rooms.price).label("total_cost"),
+                    case(
+                        ((date_to - date_from).days <= 1, Rooms.price),
+                        ((date_to - date_from).days > 1, Rooms.price * (date_to - date_from).days)
+                    ).label("total_cost"),
                     (Rooms.quantity - func.count(booked_rooms.c.room_id)
                      .filter(booked_rooms.c.room_id.is_not(None)))
                     .label("rooms_left")
