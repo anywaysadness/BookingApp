@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Depends
+from pydantic import parse_obj_as
+
 from app.bookings.schemas import SBooking
 from app.bookings.dao import BookingDAO
 from app.users.models import Users
 from app.users.dependencies import get_current_user
 from datetime import date
 from app.exception import RoomCannotBeBooking, BookingCannotBeDelete
-
+from app.tasks.tasks import send_booking_confirmation_email
 
 router = APIRouter(
     prefix="/bookings",
@@ -28,6 +30,9 @@ async def add_booking(
     booking = await BookingDAO.add(user.id, room_id, date_from, date_to)
     if not booking:
         raise RoomCannotBeBooking
+    booking_dict = parse_obj_as(SBooking, booking).dict()
+    send_booking_confirmation_email.delay(booking_dict, user.email)
+    return booking_dict
 
 
 @router.delete("/{booking_id}", status_code=204)

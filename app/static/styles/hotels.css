@@ -3,7 +3,6 @@
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    border: dashed red;
     padding: 30px;
 }
 
@@ -11,7 +10,6 @@
     display:flex;
     align-items: center;
     margin-bottom: 15px;
-    border: dashed blue;
     background-color: #E0FFFF;
 }
 .wrapper_hotels h1{
