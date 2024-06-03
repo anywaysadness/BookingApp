@@ -1,13 +1,12 @@
 import asyncio
+from datetime import date, datetime
 
 from fastapi import APIRouter, Query
-from datetime import date, datetime
-from app.hotels.schemas import SHotel, SHotelByLocationInfo
-from app.hotels.dao import HotelDAO
-
+from fastapi_cache.decorator import cache
 from pydantic import parse_obj_as
 
-from fastapi_cache.decorator import cache
+from app.hotels.dao import HotelDAO
+from app.hotels.schemas import SHotel, SHotelByLocationInfo
 
 router = APIRouter(
     prefix="/hotels",

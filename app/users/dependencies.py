@@ -1,13 +1,19 @@
 """Зависимости - Depends"""
 
-from fastapi import Request, Depends
-from jose import jwt, JWTError
-from app.config import settings
 from datetime import datetime
+
+from fastapi import Depends, Request
+from jose import JWTError, jwt
+
+from app.config import settings
+from app.exception import (
+    IncorrectTokenFormatException,
+    TokenAbsentException,
+    TokenExpiredException,
+    UserIsNotPresentException,
+)
 from app.users.dao import UsersDAO
 from app.users.models import Users
-from app.exception import TokenExpiredException, TokenAbsentException, IncorrectTokenFormatException, \
-    UserIsNotPresentException
 
 
 def get_token(request: Request):
