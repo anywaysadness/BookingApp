@@ -8,6 +8,7 @@ from app.database import async_session_maker
 from app.hotels.rooms.models import Rooms
 from app.logger import logger
 
+
 class BookingDAO(BaseDAO):
     model = Bookings
 

@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     MODE: Literal["DEV", "TEST", "PROD"]
-    LOG_LEVEL: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+    LOG_LEVEL: str
 
     DB_HOST: str
     DB_PORT: int
@@ -15,7 +15,6 @@ class Settings(BaseSettings):
 
     @property
     def DATABASE_URL(self):
-        print(settings.MODE)
         return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
     TEST_DB_HOST: str
@@ -26,7 +25,6 @@ class Settings(BaseSettings):
 
     @property
     def TEST_DATABASE_URL(self):
-        print(settings.MODE)
         return f"postgresql+asyncpg://{self.TEST_DB_USER}:{self.TEST_DB_PASS}@{self.TEST_DB_HOST}:{self.TEST_DB_PORT}/{self.TEST_DB_NAME}"
 
     SMTP_HOST: str

@@ -163,3 +163,4 @@ class HotelDAO(BaseDAO):
             )
             rooms_left = await session.execute(get_rooms_left)
             return rooms_left.mappings().all()
+

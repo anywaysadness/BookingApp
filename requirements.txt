@@ -10,21 +10,25 @@ billiard==4.2.0
 black==24.4.2
 celery==5.4.0
 certifi==2024.2.2
+charset-normalizer==3.3.2
 click==8.1.7
 click-didyoumean==0.3.1
 click-plugins==1.1.1
 click-repl==0.3.0
 colorama==0.4.6
 dnspython==2.6.1
+docker==7.1.0
 ecdsa==0.19.0
 email_validator==2.1.1
 exceptiongroup==1.2.1
 fastapi==0.111.0
 fastapi-cache2==0.2.1
 fastapi-cli==0.0.2
+fastapi-versioning==0.10.0
 flake8==7.0.0
 flower==2.0.1
 greenlet==3.0.3
+gunicorn==22.0.0
 h11==0.14.0
 httpcore==1.0.5
 httptools==0.6.1
@@ -51,6 +55,7 @@ pendulum==3.0.0
 pillow==10.3.0
 platformdirs==4.2.2
 pluggy==1.5.0
+prometheus-fastapi-instrumentator==7.0.0
 prometheus_client==0.20.0
 prompt_toolkit==3.0.45
 pyasn1==0.6.0
@@ -70,8 +75,10 @@ python-jose==3.3.0
 python-json-logger==2.0.7
 python-multipart==0.0.9
 pytz==2024.1
+pywin32==306; platform_system=="Windows"
 PyYAML==6.0.1
 redis==4.6.0
+requests==2.32.3
 rich==13.7.1
 rsa==4.9
 shellingham==1.5.4
@@ -87,6 +94,7 @@ typer==0.12.3
 typing_extensions==4.11.0
 tzdata==2024.1
 ujson==5.9.0
+urllib3==2.2.1
 uvicorn==0.29.0
 vine==5.1.0
 watchfiles==0.21.0
