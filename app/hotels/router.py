@@ -27,6 +27,12 @@ async def get_hotels_by_location_and_time(
     return hotels_json
 
 
+# Получение конкретного отеля
+@router.get("/id/{hotel_id}", status_code=200)
+async def get_hotel_by_id(hotel_id: int) -> SHotel:
+    return await HotelDAO.find_by_id(hotel_id)
+
+
 # Получение списка комнат определенного отеля
 @router.get("/{hotel_id}/rooms", status_code=200)
 async def get_rooms_by_hotel_id(
@@ -38,10 +44,7 @@ async def get_rooms_by_hotel_id(
     return rooms
 
 
-# Получение конкретного отеля
-@router.get("/id/{hotel_id}", status_code=200)
-async def get_hotel_by_id(hotel_id: int) -> SHotel:
-    return await HotelDAO.find_by_id(hotel_id)
+
 
 
 
